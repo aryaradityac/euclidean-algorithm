@@ -47,26 +47,52 @@
         .fade-in {
             animation: fadeIn 0.5s ease-out forwards;
         }
+        /* Styles for the language switcher */
+        .lang-btn {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid transparent;
+        }
+        .lang-btn.active {
+            background-color: #49bf80;
+            color: #030807;
+        }
+        .lang-btn:not(.active) {
+            background-color: transparent;
+            color: #a0aec0;
+            border-color: #4a5568;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
     <div class="w-full max-w-2xl bg-dark-surface p-6 sm:p-8 rounded-2xl shadow-lg border border-dark-border">
         
+        <!-- Language Switcher -->
+        <div class="flex justify-end mb-4">
+            <div class="flex items-center space-x-2">
+                <button id="lang-en" class="lang-btn active">EN</button>
+                <button id="lang-id" class="lang-btn">ID</button>
+            </div>
+        </div>
+        
         <header class="text-center mb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-dark-text">Euclidean Algorithm Calculator</h1>
-            <p class="text-dark-muted mt-1">Find the GCD and its linear combination.</p>
+            <h1 id="main-title" class="text-2xl sm:text-3xl font-bold text-dark-text">Euclidean Algorithm Calculator</h1>
+            <p id="subtitle" class="text-dark-muted mt-1">Find the GCD and its linear combination.</p>
         </header>
 
         <!-- Input Section -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
             <div>
-                <label for="numberA" class="block text-sm font-medium text-dark-muted mb-1">Number A</label>
-                <input type="number" id="numberA" placeholder="e.g., 1071" class="w-full px-3 py-2 bg-gray-700 border border-dark-border text-dark-text rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500 transition">
+                <label id="label-a" for="numberA" class="block text-sm font-medium text-dark-muted mb-1">Number A</label>
+                <input type="number" id="numberA" placeholder="1000" class="w-full px-3 py-2 bg-gray-700 border border-dark-border text-dark-text rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500 transition">
             </div>
             <div>
-                <label for="numberB" class="block text-sm font-medium text-dark-muted mb-1">Number B</label>
-                <input type="number" id="numberB" placeholder="e.g., 462" class="w-full px-3 py-2 bg-gray-700 border border-dark-border text-dark-text rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500 transition">
+                <label id="label-b" for="numberB" class="block text-sm font-medium text-dark-muted mb-1">Number B</label>
+                <input type="number" id="numberB" placeholder="51" class="w-full px-3 py-2 bg-gray-700 border border-dark-border text-dark-text rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500 transition">
             </div>
             <button id="calculateBtn" class="sm:col-span-2 w-full bg-brand-500 text-dark-bg font-bold py-2.5 px-4 rounded-md hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all duration-200 shadow-md">
                 Calculate
@@ -80,13 +106,13 @@
         <div id="results-container" class="mt-8 hidden">
             <!-- GCD Result -->
             <div class="bg-gray-800 border-l-4 border-brand-500 p-4 rounded-md">
-                <h2 class="text-lg font-bold text-dark-text">Result</h2>
-                <p class="text-2xl font-bold text-brand-500 mt-1">GCD(a, b) = <span id="gcd-result"></span></p>
+                <h2 id="result-title" class="text-lg font-bold text-dark-text">Result</h2>
+                <p id="gcd-display" class="text-2xl font-bold text-brand-500 mt-1"></p>
             </div>
 
             <!-- Euclidean Algorithm Steps -->
             <div class="mt-6">
-                <h3 class="text-lg font-semibold text-dark-text">1. Euclidean Algorithm Steps</h3>
+                <h3 id="euclidean-steps-title" class="text-lg font-semibold text-dark-text">1. Euclidean Algorithm Steps</h3>
                 <div id="steps-container" class="mt-2 p-4 bg-gray-800 border border-dark-border rounded-lg font-mono text-sm sm:text-base text-dark-text space-y-2">
                     <!-- Steps will be injected here -->
                 </div>
@@ -94,8 +120,8 @@
 
             <!-- Linear Combination Steps -->
             <div class="mt-6">
-                <h3 class="text-lg font-semibold text-dark-text">2. Linear Combination (Bézout's Identity)</h3>
-                <p class="text-sm text-dark-muted mb-2">Expressing the GCD as a combination of <span class="font-bold" id="original-a-span"></span> and <span class="font-bold" id="original-b-span"></span>.</p>
+                <h3 id="linear-combo-title" class="text-lg font-semibold text-dark-text">2. Linear Combination (Bézout's Identity)</h3>
+                <p id="linear-combo-subtitle" class="text-sm text-dark-muted mb-2">Expressing the GCD as a combination of <span class="font-bold" id="original-a-span"></span> and <span class="font-bold" id="original-b-span"></span>.</p>
                 <div id="linear-combination-container" class="mt-2 p-4 bg-gray-800 border border-dark-border rounded-lg font-mono text-sm sm:text-base text-dark-text space-y-2">
                     <!-- Linear combination steps will be injected here -->
                 </div>
@@ -104,192 +130,200 @@
     </div>
 
     <script>
-        // DOM Elements
+        // --- LANGUAGE & TRANSLATIONS ---
+        let currentLanguage = 'en';
+        const translations = {
+            en: {
+                title: 'Euclidean Algorithm Calculator',
+                subtitle: 'Find the GCD and its linear combination.',
+                labelA: 'Number A',
+                labelB: 'Number B',
+                calculate: 'Calculate',
+                error: 'Please enter two positive whole numbers.',
+                resultTitle: 'Result',
+                euclideanStepsTitle: '1. Euclidean Algorithm Steps',
+                linearComboTitle: "2. Linear Combination (Bézout's Identity)",
+                linearComboSubtitle: 'Expressing the GCD as a combination of',
+                rearrange: 'From equation ({numeral}), we rearrange to get our starting expression:',
+                substitute: 'From ({numeral}), we get {rearranged}. Substituting this gives:',
+                simplifies: 'This simplifies to the final linear combination:',
+            },
+            id: {
+                title: 'Kalkulator Algoritma Euklides',
+                subtitle: 'Temukan FPB dan kombinasi linearnya.',
+                labelA: 'Angka A',
+                labelB: 'Angka B',
+                calculate: 'Hitung',
+                error: 'Silakan masukkan dua bilangan bulat positif.',
+                resultTitle: 'Hasil',
+                euclideanStepsTitle: '1. Langkah-langkah Algoritma Euklides',
+                linearComboTitle: '2. Kombinasi Linear (Identitas Bézout)',
+                linearComboSubtitle: 'Menyatakan FPB sebagai kombinasi dari',
+                rearrange: 'Dari persamaan ({numeral}), kita susun ulang untuk mendapatkan ekspresi awal:',
+                substitute: 'Dari ({numeral}), kita dapatkan {rearranged}. Substitusi ini menghasilkan:',
+                simplifies: 'Ini disederhanakan menjadi kombinasi linear akhir:',
+            }
+        };
+
+        // --- DOM Elements ---
         const numberAInput = document.getElementById('numberA');
         const numberBInput = document.getElementById('numberB');
         const calculateBtn = document.getElementById('calculateBtn');
         const resultsContainer = document.getElementById('results-container');
         const errorMessage = document.getElementById('error-message');
-
-        const gcdResultEl = document.getElementById('gcd-result');
+        const gcdDisplayEl = document.getElementById('gcd-display');
         const stepsContainer = document.getElementById('steps-container');
         const linearCombinationContainer = document.getElementById('linear-combination-container');
         const originalASpan = document.getElementById('original-a-span');
         const originalBSpan = document.getElementById('original-b-span');
-
-        // --- Main Calculation Logic ---
+        const langEnBtn = document.getElementById('lang-en');
+        const langIdBtn = document.getElementById('lang-id');
         
-        calculateBtn.addEventListener('click', () => {
-            // 1. Clear previous results and errors
+        // --- LANGUAGE SWITCHER LOGIC ---
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            const t = translations[lang];
+
+            // Update UI text
+            document.getElementById('main-title').textContent = t.title;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('label-a').textContent = t.labelA;
+            document.getElementById('label-b').textContent = t.labelB;
+            calculateBtn.textContent = t.calculate;
+            document.getElementById('result-title').textContent = t.resultTitle;
+            document.getElementById('euclidean-steps-title').textContent = t.euclideanStepsTitle;
+            document.getElementById('linear-combo-title').textContent = t.linearComboTitle;
+            
+            // Update subtitle for linear combination
+            const originalA = originalASpan.textContent;
+            const originalB = originalBSpan.textContent;
+            document.getElementById('linear-combo-subtitle').innerHTML = `${t.linearComboSubtitle} <span class="font-bold">${originalA}</span> dan <span class="font-bold">${originalB}</span>.`;
+
+            // Update button styles
+            langEnBtn.classList.toggle('active', lang === 'en');
+            langIdBtn.classList.toggle('active', lang === 'id');
+
+            // If results are visible, recalculate to update dynamic text
+            if (!resultsContainer.classList.contains('hidden')) {
+                calculateAndDisplay();
+            }
+        }
+        
+        langEnBtn.addEventListener('click', () => setLanguage('en'));
+        langIdBtn.addEventListener('click', () => setLanguage('id'));
+
+
+        // --- MAIN CALCULATION LOGIC ---
+        calculateBtn.addEventListener('click', calculateAndDisplay);
+
+        function calculateAndDisplay() {
             resultsContainer.classList.add('hidden');
             errorMessage.textContent = '';
             stepsContainer.innerHTML = '';
             linearCombinationContainer.innerHTML = '';
 
-            // 2. Get and validate inputs
             const a = parseInt(numberAInput.value);
             const b = parseInt(numberBInput.value);
 
             if (isNaN(a) || isNaN(b) || a <= 0 || b <= 0) {
-                errorMessage.textContent = 'Please enter two positive whole numbers.';
+                errorMessage.textContent = translations[currentLanguage].error;
                 return;
             }
             
-            // Ensure a is always the larger number
             const numA = Math.max(a, b);
             const numB = Math.min(a, b);
             
             originalASpan.textContent = numA;
             originalBSpan.textContent = numB;
+            // Also update the subtitle immediately
+            const t = translations[currentLanguage];
+            document.getElementById('linear-combo-subtitle').innerHTML = `${t.linearComboSubtitle} <span class="font-bold">${numA}</span> dan <span class="font-bold">${numB}</span>.`;
 
-            // 3. Perform Euclidean Algorithm
+
             const { gcd, steps, equations } = runEuclideanAlgorithm(numA, numB);
-
-            // 4. Perform Extended Euclidean Algorithm for Linear Combination
             const linearCombinationSteps = findLinearCombination(equations, numA, numB);
+            displayResults(gcd, steps, linearCombinationSteps, numA, numB);
+        }
 
-            // 5. Display results
-            displayResults(gcd, steps, linearCombinationSteps);
-        });
-
-        /**
-         * Runs the Euclidean Algorithm to find the GCD and record the steps.
-         * @param {number} a - The larger number.
-         * @param {number} b - The smaller number.
-         * @returns {object} An object containing the gcd, steps, and equations array.
-         */
         function runEuclideanAlgorithm(a, b) {
             let currentA = a;
             let currentB = b;
             const steps = [];
-            const equations = []; // To store {dividend, divisor, quotient, remainder}
-
-            const toRoman = (num) => {
-                const numerals = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
-                return numerals[num] || (num + 1);
-            };
+            const equations = [];
+            const toRoman = (num) => ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'][num] || (num + 1);
 
             while (currentB !== 0) {
                 const quotient = Math.floor(currentA / currentB);
                 const remainder = currentA % currentB;
                 const numeral = toRoman(equations.length);
-                
-                // Use placeholders and add the equation number
                 steps.push(`${currentA} = ${quotient} M_TIMES ${currentB} M_PLUS ${remainder} <span class="text-gray-500 ml-4">(${numeral})</span>`);
-                equations.push({
-                    dividend: currentA,
-                    divisor: currentB,
-                    quotient: quotient,
-                    remainder: remainder,
-                    numeral: numeral
-                });
-
+                equations.push({ dividend: currentA, divisor: currentB, quotient, remainder, numeral });
                 currentA = currentB;
                 currentB = remainder;
             }
-
-            return {
-                gcd: currentA,
-                steps: steps,
-                equations: equations
-            };
+            return { gcd: currentA, steps, equations };
         }
-
-        /**
-         * Works backwards through the Euclidean algorithm steps to find the linear combination.
-         * @param {Array<object>} equations - The equations from the forward pass.
-         * @param {number} originalA - The original larger number.
-         * @param {number} originalB - The original smaller number.
-         * @returns {Array<string>} An array of strings representing the steps.
-         */
+        
         function findLinearCombination(equations, originalA, originalB) {
             const steps = [];
-            // We don't need the last equation where remainder is 0
+            const t = translations[currentLanguage];
             const relevantEquations = equations.slice(0, -1);
             
             if (relevantEquations.length === 0) {
-                // This happens if b divides a perfectly, e.g., GCD(10, 5)
-                steps.push(`${originalB} = 0 M_TIMES ${originalA} M_PLUS 1 M_TIMES ${originalB}`);
+                steps.push({ type: 'direct', text: `${originalB} = 0 M_TIMES ${originalA} M_PLUS 1 M_TIMES ${originalB}` });
                 return steps;
             }
 
-            // Start with the second to last equation: gcd = dividend - quotient * divisor
             let lastEq = relevantEquations.pop();
             let gcd = lastEq.remainder;
             
-            steps.push(`From equation (${lastEq.numeral}), we rearrange to get our starting expression:`);
-            steps.push(`${gcd} = ${lastEq.dividend} M_MINUS ${lastEq.quotient} M_TIMES ${lastEq.divisor}`);
+            steps.push({ type: 'explanatory', text: t.rearrange.replace('{numeral}', lastEq.numeral) });
+            steps.push({ type: 'math', text: `${gcd} = ${lastEq.dividend} M_MINUS ${lastEq.quotient} M_TIMES ${lastEq.divisor}` });
             
-            let x = 1; // Coefficient for what was the dividend
-            let y = -lastEq.quotient; // Coefficient for what was the divisor
-
-            let highNum = lastEq.dividend;
-            let lowNum = lastEq.divisor; // This is the number that will be substituted in the next step.
+            let x = 1, y = -lastEq.quotient;
+            let highNum = lastEq.dividend, lowNum = lastEq.divisor;
             
             while (relevantEquations.length > 0) {
-                lastEq = relevantEquations.pop(); // This equation defines `lowNum` as its remainder.
-                
-                // Create the rearranged string for the substitution step.
+                lastEq = relevantEquations.pop();
                 const rearranged = `${lowNum} = ${lastEq.dividend} M_MINUS ${lastEq.quotient} M_TIMES ${lastEq.divisor}`;
-                steps.push(`From (${lastEq.numeral}), we get ${rearranged}. Substituting this gives:`);
-
-                // The actual substitution step explained
-                steps.push(`${gcd} = ${x} M_TIMES (${highNum}) M_PLUS ${y} M_TIMES (${lastEq.dividend} M_MINUS ${lastEq.quotient} M_TIMES ${lastEq.divisor})`);
-                // The simplified result of the substitution
-                steps.push(`${gcd} = ${y} M_TIMES (${lastEq.dividend}) M_PLUS (${x} - ${y}*${lastEq.quotient}) M_TIMES (${highNum})`);
+                steps.push({ type: 'explanatory', text: t.substitute.replace('{numeral}', lastEq.numeral).replace('{rearranged}', formatStep(rearranged, true)) });
+                steps.push({ type: 'math', text: `${gcd} = ${x} M_TIMES (${highNum}) M_PLUS ${y} M_TIMES (${lastEq.dividend} M_MINUS ${lastEq.quotient} M_TIMES ${lastEq.divisor})` });
+                steps.push({ type: 'math', text: `${gcd} = ${y} M_TIMES (${lastEq.dividend}) M_PLUS (${x} - ${y}*${lastEq.quotient}) M_TIMES (${highNum})` });
                 
-                const oldX = x;
-                const oldY = y;
-
+                const oldX = x, oldY = y;
                 x = oldY;
                 y = oldX - oldY * lastEq.quotient;
-
                 lowNum = highNum;
                 highNum = lastEq.dividend;
             }
              
-            // Final step format
-            steps.push(`This simplifies to the final linear combination:`);
-            let finalStep = `${gcd} = ${x} M_TIMES ${originalA} M_PLUS ${y} M_TIMES ${originalB}`;
-            steps.push(finalStep);
-
+            steps.push({ type: 'explanatory', text: t.simplifies });
+            steps.push({ type: 'math', text: `${gcd} = ${x} M_TIMES ${originalA} M_PLUS ${y} M_TIMES ${originalB}` });
             return steps;
         }
 
-
-        /**
-         * Renders the results to the DOM.
-         * @param {number} gcd - The final GCD.
-         * @param {Array<string>} steps - The Euclidean algorithm steps.
-         * @param {Array<string>} linearSteps - The linear combination steps.
-         */
-        function displayResults(gcd, steps, linearSteps) {
-            gcdResultEl.textContent = gcd;
-
-            const formatStep = (step) => {
-                // Using a proper minus sign (U+2212) for better visual appearance
-                // and replacing placeholders instead of the symbols themselves.
-                return step.replace(/M_TIMES/g, '<span class="mx-1 text-brand-500 font-bold">×</span>')
-                           .replace(/M_PLUS/g, '<span class="mx-1 text-brand-500 font-bold">+</span>')
-                           .replace(/M_MINUS/g, '<span class="mx-1 text-brand-500 font-bold">−</span>');
-            };
+        function formatStep(step, isInline = false) {
+            const colorClass = isInline ? 'text-brand-500' : 'mx-1 text-brand-500 font-bold';
+            return step.replace(/M_TIMES/g, `<span class="${colorClass}">×</span>`)
+                       .replace(/M_PLUS/g, `<span class="${colorClass}">+</span>`)
+                       .replace(/M_MINUS/g, `<span class="${colorClass}">−</span>`);
+        }
+        
+        function displayResults(gcd, steps, linearSteps, numA, numB) {
+            gcdDisplayEl.textContent = `GCD(${numA}, ${numB}) = ${gcd}`;
 
             steps.forEach(step => {
                 const p = document.createElement('p');
-                p.innerHTML = formatStep(step); // Directly use innerHTML as step includes span
+                p.innerHTML = formatStep(step);
                 stepsContainer.appendChild(p);
             });
 
             linearSteps.forEach(step => {
                 const p = document.createElement('p');
-                
-                // Add styling for explanatory lines
-                if (step.startsWith('From') || step.startsWith('This simplifies')) {
+                if (step.type === 'explanatory') {
                     p.className = 'text-dark-muted italic pt-3';
                 }
-
-                // Clean up " + (-N) " into " - N " for better readability
-                let cleanedStep = step.replace(/M_PLUS \(-(\d+)\)/g, 'M_MINUS $1');
+                let cleanedStep = step.text.replace(/M_PLUS \(-(\d+)\)/g, 'M_MINUS $1');
                 p.innerHTML = formatStep(cleanedStep);
                 linearCombinationContainer.appendChild(p);
             });
@@ -297,6 +331,9 @@
             resultsContainer.classList.remove('hidden');
             resultsContainer.classList.add('fade-in');
         }
+        
+        // Initialize with default language
+        setLanguage(currentLanguage);
     </script>
 </body>
 </html>
