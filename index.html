@@ -6,6 +6,29 @@
     <title>Euclidean Algorithm GCD Calculator</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom color configuration for Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            500: '#49bf80',
+                            600: '#3aa86e',
+                        },
+                        // Custom dark theme colors
+                        dark: {
+                            bg: '#030807',
+                            surface: '#1a202c',
+                            text: '#fcf5e8',
+                            muted: '#a0aec0',
+                            border: '#4a5568',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +36,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #030807;
+            color: #fcf5e8;
         }
         /* Simple animation for result visibility */
         @keyframes fadeIn {
@@ -24,54 +49,54 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-2xl bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+    <div class="w-full max-w-2xl bg-dark-surface p-6 sm:p-8 rounded-2xl shadow-lg border border-dark-border">
         
         <header class="text-center mb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Euclidean Algorithm Calculator</h1>
-            <p class="text-gray-500 mt-1">Find the GCD and its linear combination.</p>
+            <h1 class="text-2xl sm:text-3xl font-bold text-dark-text">Euclidean Algorithm Calculator</h1>
+            <p class="text-dark-muted mt-1">Find the GCD and its linear combination.</p>
         </header>
 
         <!-- Input Section -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
             <div>
-                <label for="numberA" class="block text-sm font-medium text-gray-700 mb-1">Number A</label>
-                <input type="number" id="numberA" placeholder="e.g., 1071" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition">
+                <label for="numberA" class="block text-sm font-medium text-dark-muted mb-1">Number A</label>
+                <input type="number" id="numberA" placeholder="e.g., 1071" class="w-full px-3 py-2 bg-gray-700 border border-dark-border text-dark-text rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500 transition">
             </div>
             <div>
-                <label for="numberB" class="block text-sm font-medium text-gray-700 mb-1">Number B</label>
-                <input type="number" id="numberB" placeholder="e.g., 462" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition">
+                <label for="numberB" class="block text-sm font-medium text-dark-muted mb-1">Number B</label>
+                <input type="number" id="numberB" placeholder="e.g., 462" class="w-full px-3 py-2 bg-gray-700 border border-dark-border text-dark-text rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500 transition">
             </div>
-            <button id="calculateBtn" class="sm:col-span-2 w-full bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-md">
+            <button id="calculateBtn" class="sm:col-span-2 w-full bg-brand-500 text-dark-bg font-bold py-2.5 px-4 rounded-md hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all duration-200 shadow-md">
                 Calculate
             </button>
         </div>
         
         <!-- Error Message Placeholder -->
-        <div id="error-message" class="text-red-500 text-center mt-4 font-medium"></div>
+        <div id="error-message" class="text-red-400 text-center mt-4 font-medium"></div>
 
         <!-- Results Section -->
         <div id="results-container" class="mt-8 hidden">
             <!-- GCD Result -->
-            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-md">
-                <h2 class="text-lg font-bold text-gray-800">Result</h2>
-                <p class="text-2xl font-bold text-indigo-600 mt-1">GCD(a, b) = <span id="gcd-result"></span></p>
+            <div class="bg-gray-800 border-l-4 border-brand-500 p-4 rounded-md">
+                <h2 class="text-lg font-bold text-dark-text">Result</h2>
+                <p class="text-2xl font-bold text-brand-500 mt-1">GCD(a, b) = <span id="gcd-result"></span></p>
             </div>
 
             <!-- Euclidean Algorithm Steps -->
             <div class="mt-6">
-                <h3 class="text-lg font-semibold text-gray-700">1. Euclidean Algorithm Steps</h3>
-                <div id="steps-container" class="mt-2 p-4 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm sm:text-base text-gray-800 space-y-2">
+                <h3 class="text-lg font-semibold text-dark-text">1. Euclidean Algorithm Steps</h3>
+                <div id="steps-container" class="mt-2 p-4 bg-gray-800 border border-dark-border rounded-lg font-mono text-sm sm:text-base text-dark-text space-y-2">
                     <!-- Steps will be injected here -->
                 </div>
             </div>
 
             <!-- Linear Combination Steps -->
             <div class="mt-6">
-                <h3 class="text-lg font-semibold text-gray-700">2. Linear Combination (Bézout's Identity)</h3>
-                <p class="text-sm text-gray-500 mb-2">Expressing the GCD as a combination of <span class="font-bold" id="original-a-span"></span> and <span class="font-bold" id="original-b-span"></span>.</p>
-                <div id="linear-combination-container" class="mt-2 p-4 bg-gray-50 border border-gray-200 rounded-lg font-mono text-sm sm:text-base text-gray-800 space-y-2">
+                <h3 class="text-lg font-semibold text-dark-text">2. Linear Combination (Bézout's Identity)</h3>
+                <p class="text-sm text-dark-muted mb-2">Expressing the GCD as a combination of <span class="font-bold" id="original-a-span"></span> and <span class="font-bold" id="original-b-span"></span>.</p>
+                <div id="linear-combination-container" class="mt-2 p-4 bg-gray-800 border border-dark-border rounded-lg font-mono text-sm sm:text-base text-dark-text space-y-2">
                     <!-- Linear combination steps will be injected here -->
                 </div>
             </div>
@@ -150,7 +175,7 @@
                 const numeral = toRoman(equations.length);
                 
                 // Use placeholders and add the equation number
-                steps.push(`${currentA} = ${quotient} M_TIMES ${currentB} M_PLUS ${remainder} <span class="text-gray-400 ml-4">(${numeral})</span>`);
+                steps.push(`${currentA} = ${quotient} M_TIMES ${currentB} M_PLUS ${remainder} <span class="text-gray-500 ml-4">(${numeral})</span>`);
                 equations.push({
                     dividend: currentA,
                     divisor: currentB,
@@ -244,9 +269,9 @@
             const formatStep = (step) => {
                 // Using a proper minus sign (U+2212) for better visual appearance
                 // and replacing placeholders instead of the symbols themselves.
-                return step.replace(/M_TIMES/g, '<span class="mx-1 text-indigo-500 font-bold">×</span>')
-                           .replace(/M_PLUS/g, '<span class="mx-1 text-indigo-500 font-bold">+</span>')
-                           .replace(/M_MINUS/g, '<span class="mx-1 text-indigo-500 font-bold">−</span>');
+                return step.replace(/M_TIMES/g, '<span class="mx-1 text-brand-500 font-bold">×</span>')
+                           .replace(/M_PLUS/g, '<span class="mx-1 text-brand-500 font-bold">+</span>')
+                           .replace(/M_MINUS/g, '<span class="mx-1 text-brand-500 font-bold">−</span>');
             };
 
             steps.forEach(step => {
@@ -260,7 +285,7 @@
                 
                 // Add styling for explanatory lines
                 if (step.startsWith('From') || step.startsWith('This simplifies')) {
-                    p.className = 'text-gray-600 italic pt-3';
+                    p.className = 'text-dark-muted italic pt-3';
                 }
 
                 // Clean up " + (-N) " into " - N " for better readability
